@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - type: volume
+        source: postgres_data
+        target: /var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME} -h localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    env_file:
+      - .env
+
+
+  dagster:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOSTNAME: ${DB_HOSTNAME}
+      DB_NAME: ${DB_NAME}
+      DB_PORT: 5432
+      DAGSTER_HOME: /opt/dagster/app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./dagster.yaml:/opt/dagster/app/dagster.yaml
+      - ./compute_logs:/opt/dagster/compute_logs
+      - ./storage:/opt/dagster/storage
+    command: ["dagster-webserver", "-h", "0.0.0.0"]
+    env_file:
+      - .env
+
+volumes:
+  postgres_data:

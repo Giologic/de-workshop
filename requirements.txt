@@ -1,0 +1,6 @@
+dagster-webserver
+dagster-postgres
+pandas
+numpy
+psycopg2-binary
+dagster-docker

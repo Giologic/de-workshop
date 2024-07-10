@@ -1,0 +1,24 @@
+storage:
+  postgres:
+    postgres_db:
+      username: 
+        env: DB_USERNAME
+      password: 
+        env: DB_PASSWORD
+      hostname: 
+        env: DB_HOSTNAME
+      db_name: 
+        env: DB_NAME
+      port: 5432
+
+compute_logs:
+  module: dagster.core.storage.compute_log_manager
+  class: LocalComputeLogManager
+  config:
+    base_dir: /opt/dagster/compute_logs/
+
+local_artifact_storage:
+  module: dagster.core.storage.root
+  class: LocalArtifactStorage
+  config:
+    base_dir: /opt/dagster/local/
